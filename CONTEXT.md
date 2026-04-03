@@ -65,12 +65,61 @@ metrics compare directly against the constraint patterns and preserve direction.
 - **Scale mismatch in raw plots** — constraint pattern plotted at original scale
   while genes are at expression count scale. LT plots are more visually informative.
 
+## People
+- **Dr. Nancy Guo** — PI, AI/ML SUNY Empire Innovation Professor, School of Computing, Binghamton
+- **Minjie Wang** — Co-advisor/collaborator, suggested similarity metrics and ensemble methods
+- **Ethan Kyi** — Wrote original NMF analysis code and provided data via Google Drive/GitHub
+- **Zihan** — Team member (on email thread)
+- **Matt Jacob** — Analysis developer, implementing the new similarity metrics
+
 ## Still TODO
-- Read and incorporate findings from the time series article
-- Dig deeper into differences between similarity measures
-- Investigate clusterFour divergence
-- Consider statistical significance testing (p-values for Pearson r at n=4)
-- Possible: pathway enrichment analysis on top gene lists (KEGG, GO)
+
+### Phase 5: Additional Similarity Metrics
+
+#### 5A. Fréchet Distance
+- Minjie recommended this as a 4th distance metric (email Mar 26)
+- Measures similarity between curves considering both position and ordering
+- Unlike DTW, Fréchet distance preserves temporal ordering (no warping)
+- Library: `similaritymeasures` or `frechetdist` in Python
+- Note: with only 4 timepoints, may behave similarly to Euclidean distance
+
+#### 5B. MSE (Mean Squared Error)
+- Nancy and Minjie discussed as a similarity measure (email Mar 28)
+- Point-by-point squared difference between normalized pattern and gene series
+- Simple and interpretable; lower = more similar
+- Already available in sklearn (`mean_squared_error`) or trivial to implement
+
+#### 5C. MAPE (Mean Absolute Percentage Error)
+- Minjie recommended (email Mar 29)
+- Measures percentage deviation at each timepoint
+- Caution: undefined when true value = 0 (clusterThree has a 0 at t=3)
+- Need to handle zero-value timepoints (skip or use symmetric MAPE)
+
+### Phase 6: Ensemble Ranking Aggregation
+- Nancy asked: "can we develop ensemble methods to get the best results from each method?"
+- Minjie proposed two aggregation strategies:
+  1. **Top-N vote count**: Count how many methods place each gene in the top N
+  2. **Average/median rank**: Compute the mean or median rank of each gene across methods
+- Additional ideas from Minjie: investigate statistical ensemble methods
+- Output: a consensus "ensemble top-N" gene list per cluster/pattern
+- This is likely the most impactful deliverable — synthesizes all individual methods
+
+### Phase 7: Deeper Analysis
+- Investigate clusterFour divergence (0 overlap between any method pair)
+- Statistical significance testing (p-values for Pearson r at n=4, only 2 DOF)
+- Pathway enrichment analysis on top gene lists (KEGG, GO) to validate biological relevance
+- Cross-reference ensemble top genes with known TCR pathway genes
+
+### Research References
+- **SimilarityTS paper**: https://www.sciencedirect.com/science/article/pii/S2352711023002236
+  - Python toolkit for standardized evaluation of time series similarity
+  - Section 3.2.1 covers univariate metrics (behind paywall — access via Binghamton library)
+  - Covers: KL divergence, DTW, PCA/t-SNE visualization comparisons
+- **Medium post (L. Bader)**: https://medium.com/@lxbader/how-can-we-quantify-similarity-between-time-series-ed1d0b633ca0
+  - Practical comparison of Euclidean, Pearson, DTW, and Compression-Based Dissimilarity
+  - Key insight: Pearson best for shape matching (ignores amplitude), DTW for time-shifted
+  - With 4 timepoints, DTW warping flexibility is very limited
+  - Also covers SAX-based compression similarity (lower priority, more exotic)
 
 ## Files
 - `analysis.py` — Full script (plt.savefig, batch mode)
@@ -78,8 +127,4 @@ metrics compare directly against the constraint patterns and preserve direction.
 - `plots/` — 32 saved PNGs (LT plots are the better ones to show)
 - `SUMMARY_REPORT.md` — Detailed results summary
 - `CONTEXT.md` — This file
-- `CLAUDE.md` — Original implementation instructions
-
-## People
-- **Dr. Nancy Guo** — PI, flagged the NMF direction issue
-- **Ethan Kyi** — Wrote the original NMF analysis (`analysis.py` original code)
+- `CLAUDE.md` — Implementation instructions

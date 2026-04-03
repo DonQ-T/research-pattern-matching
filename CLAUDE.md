@@ -87,6 +87,62 @@ actually overlay the pattern (not a blank or misaligned plot).
 - Print a final summary table: for each cluster and pattern, show the
   number of overlapping genes in the top 20 across all method pairs
 
+### Phase 5: Additional similarity metrics (from Minjie Wang's recommendations)
+
+#### 5A. Fréchet distance
+- Compute discrete Fréchet distance between pattern and each gene's time series
+- Use `similaritymeasures` or `frechetdist` library
+- Rank genes by Fréchet distance (lower = more similar)
+- Note: with 4 timepoints, may behave similarly to Euclidean — compare results
+
+#### 5B. MSE (Mean Squared Error)
+- Point-by-point squared difference on normalized data
+- Rank genes (lower = more similar)
+- Trivial to implement with numpy
+
+#### 5C. MAPE (Mean Absolute Percentage Error)
+- Percentage deviation per timepoint
+- Handle zero values (clusterThree has 0 at t=3): use symmetric MAPE or skip zeros
+- Rank genes (lower = more similar)
+
+**Validation:** After Phase 5, compare top-20 overlap of new metrics vs existing
+ones (Pearson, DTW, Cosine). Do Fréchet/MSE cluster with DTW? Does MAPE
+show different behavior?
+
+### Phase 6: Ensemble ranking aggregation
+
+#### 6A. Top-N vote count
+- For each gene, count how many methods place it in the top N (e.g., top 20)
+- Rank genes by vote count (ties broken by average rank)
+
+#### 6B. Average/median rank aggregation
+- For each gene, compute mean and median rank across all methods
+- Produce consensus top-N lists
+
+#### 6C. Ensemble visualization
+- Show ensemble top-20 genes per cluster alongside individual method rankings
+- Highlight genes that appear in all/most methods vs single-method outliers
+
+**Validation:** For clusterThree (where methods already agree), ensemble should
+match individual methods closely. For clusterFour (0 overlap), ensemble ranking
+reveals which genes are "least disagreed upon."
+
+### Phase 7: Code review
+- Review existing analysis.py and new notebook for correctness
+- Verify each similarity metric implementation against its mathematical definition
+- Check edge cases: constant genes, zero patterns (clusterThree t=3), extreme spikes (clusterFour)
+- Validate normalization: does (0,1] normalization interact badly with any metric?
+- Check for numerical issues (division by zero, NaN propagation)
+- Review whether DTW normalization is consistent with other metrics
+- Document any issues found and fix in-place
+- Produce a short "code review notes" markdown cell summarizing findings
+
+### Phase 8: Extended analysis (lower priority)
+- Investigate clusterFour divergence in depth
+- Statistical significance testing (Pearson p-values at n=4)
+- Pathway enrichment analysis (KEGG, GO) on ensemble top gene lists
+- Cross-reference with known TCR pathway genes
+
 ## Execution Strategy — Use Subagents
 
 When implementing this plan, use subagents to parallelize independent work:
@@ -100,6 +156,11 @@ When implementing this plan, use subagents to parallelize independent work:
 - **Research subagents:** If you need to look up DTW library APIs or
   normalization best practices, spawn a research subagent rather than
   blocking the main flow.
+
+- **Phase 5 parallelism:** Fréchet (5A), MSE (5B), and MAPE (5C) are
+  independent — parallelize like Phase 2.
+- **Phase 6 depends on Phase 5:** Ensemble aggregation needs all metric
+  results. Run sequentially after Phase 5.
 
 Do NOT use subagents for sequential/dependent work (e.g., Phase 1 must
 complete before Phase 2 begins).
