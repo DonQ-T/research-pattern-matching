@@ -48,6 +48,31 @@ Three methods compare each gene's normalized expression to the constraint patter
 - clusterOne/Two: Pearson-DTW agree well (13-16/20)
 - clusterFour: 0 overlap across all methods — extreme spike pattern is hard to match
 
+### Phase 5: Additional Similarity Metrics (DONE)
+Added Fréchet, MSE, and sMAPE alongside the original three. Implementation
+lives in `analysis_extended.ipynb`; results saved in `metrics_results.pkl`.
+- **Fréchet** behaves nearly identically to MSE at n=4 (19-20/20 overlap)
+- **MSE** is the cleanest distance metric — strong agreement with Pearson
+- **sMAPE** fails on clusterThree (zero at t=3 → sMAPE_i = 2.0 for any gene)
+
+### Phase 6: Ensemble Ranking (DONE)
+Implemented in `analysis_comparison.ipynb`. Two aggregation strategies:
+- Top-N vote count (how many methods place each gene in top 20)
+- Average rank across methods
+clusterTwo LT is the best case: 9 of top 11 genes are unanimous 6/6.
+clusterFour has 0 unanimous genes — methods cannot agree on the spike.
+
+### Phase 7: Code Review (DONE)
+Verified each metric against known test vectors, audited edge cases
+(constant genes, zero patterns, extreme spikes). No NaN/Inf issues found.
+Notes are in `analysis_comparison.ipynb`.
+
+### Presentation (DONE — weekly update format)
+`presentation.tex` / `presentation.pdf` — restructured for weekly updates:
+no methodology slides, results-focused. 3 slides per cluster (ensemble plot,
+overlap heatmap, ensemble rankings table), LT data only. Appendix retains
+all individual method plots. Compile with `pdflatex presentation.tex`.
+
 ## Key Insight: Why NMF Was Insufficient
 NMF uses absolute fold change — a gene upregulated 2x and downregulated 2x get
 the same coefficient. Its top genes (RPS18, MALAT1, RPL13) are highly expressed
@@ -72,43 +97,27 @@ metrics compare directly against the constraint patterns and preserve direction.
 - **Zihan** — Team member (on email thread)
 - **Matt Jacob** — Analysis developer, implementing the new similarity metrics
 
+## Recent Activity (2026-04-08)
+- Pulled latest commits from GitHub (50 files: phases 5-7, math foundations,
+  presentation, plots)
+- Restructured `presentation.tex` to weekly-update format (removed
+  methodology slides, made 3 LT slides per cluster: ensemble / heatmap /
+  rankings table). Recompiled to `presentation.pdf`.
+- Replied to Zihan's email with normalization explanation + GitHub repo link
+- Confirmed `metrics_results.pkl` requires pandas >= 3.0 to load (use the
+  `quant` conda env: `C:/Users/mjacob28/AppData/Local/miniconda3/envs/quant/python.exe`)
+
 ## Still TODO
 
-### Phase 5: Additional Similarity Metrics
-
-#### 5A. Fréchet Distance
-- Minjie recommended this as a 4th distance metric (email Mar 26)
-- Measures similarity between curves considering both position and ordering
-- Unlike DTW, Fréchet distance preserves temporal ordering (no warping)
-- Library: `similaritymeasures` or `frechetdist` in Python
-- Note: with only 4 timepoints, may behave similarly to Euclidean distance
-
-#### 5B. MSE (Mean Squared Error)
-- Nancy and Minjie discussed as a similarity measure (email Mar 28)
-- Point-by-point squared difference between normalized pattern and gene series
-- Simple and interpretable; lower = more similar
-- Already available in sklearn (`mean_squared_error`) or trivial to implement
-
-#### 5C. MAPE (Mean Absolute Percentage Error)
-- Minjie recommended (email Mar 29)
-- Measures percentage deviation at each timepoint
-- Caution: undefined when true value = 0 (clusterThree has a 0 at t=3)
-- Need to handle zero-value timepoints (skip or use symmetric MAPE)
-
-### Phase 6: Ensemble Ranking Aggregation
-- Nancy asked: "can we develop ensemble methods to get the best results from each method?"
-- Minjie proposed two aggregation strategies:
-  1. **Top-N vote count**: Count how many methods place each gene in the top N
-  2. **Average/median rank**: Compute the mean or median rank of each gene across methods
-- Additional ideas from Minjie: investigate statistical ensemble methods
-- Output: a consensus "ensemble top-N" gene list per cluster/pattern
-- This is likely the most impactful deliverable — synthesizes all individual methods
-
-### Phase 7: Deeper Analysis
-- Investigate clusterFour divergence (0 overlap between any method pair)
+### Phase 8: Deeper Analysis (lower priority)
+- Investigate clusterFour divergence (0 overlap between any method pair) —
+  needs denser temporal sampling or peak-detection approach
 - Statistical significance testing (p-values for Pearson r at n=4, only 2 DOF)
-- Pathway enrichment analysis on top gene lists (KEGG, GO) to validate biological relevance
+- Pathway enrichment analysis on top gene lists (KEGG, GO) to validate
+  biological relevance
 - Cross-reference ensemble top genes with known TCR pathway genes
+- Multivariate time-series similarity (Zihan is also exploring this per
+  Prof. Wang's suggestion)
 
 ### Research References
 - **SimilarityTS paper**: https://www.sciencedirect.com/science/article/pii/S2352711023002236

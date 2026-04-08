@@ -86,78 +86,71 @@ sMAPE    & Symmetric \% error    & Lower = better  & Relative scale \\
 \end{center}
 \end{frame}
 
-% ------------------------------------------------------------------
-\begin{frame}{Pearson Correlation --- Primary Metric}
-$$r = \frac{\sum(p_i - \bar{p})(g_i - \bar{g})}
-           {\sqrt{\sum(p_i - \bar{p})^2 \cdot \sum(g_i - \bar{g})^2}}$$
-
-\begin{itemize}
-  \item Mean-centers both vectors $\Rightarrow$ measures \textbf{shape only}
-  \item Scale and shift invariant: $[1, 12, 5, 7]$ and $[100, 1200, 500, 700]$
-        get the same score
-  \item Best fit for the biological question: ``does this gene go up when the
-        pattern goes up?''
-  \item \textbf{Caveat:} with $n=4$, there is a $\sim$20\% chance of $|r|>0.8$
-        under the null --- interpret rankings, not absolute values
-\end{itemize}
-\end{frame}
-
-% ------------------------------------------------------------------
-\begin{frame}{Why Cosine Similarity Diverges from Pearson}
-$$\cos(\theta) = \frac{\sum p_i g_i}{\sqrt{\sum p_i^2}\sqrt{\sum g_i^2}}$$
-
-\begin{itemize}
-  \item Same formula as Pearson but \textbf{without mean-centering}
-  \item A flat gene $[1, 1, 1, 1]$ gets high cosine with almost any positive pattern
-  \item Finds housekeeping genes (high, stable expression) instead of shape-matching genes
-  \item Behavior is \textbf{context-dependent}: perfect overlap with Pearson on clusterThree (20/20),
-        but only 2/20 on clusterOne
-\end{itemize}
-\end{frame}
-
-% ------------------------------------------------------------------
-\begin{frame}{DTW, Fr\'{e}chet, MSE --- Distance Metrics}
+% ==================================================================
+% RESULTS — clusterOne LT
+% ==================================================================
+\begin{frame}{Results: clusterOne LT --- Modest Consensus}
 \begin{columns}[T]
-\begin{column}{0.33\textwidth}
-\textbf{DTW}\\[0.5em]
-Finds optimal temporal alignment.
-At 4 timepoints, warping is minimal
-$\Rightarrow$ largely redundant with pointwise methods.
+\begin{column}{0.45\textwidth}
+\includegraphics[width=\textwidth]{plots/Ensemble_LT_clusterOneLT_constraint.png}
 \end{column}
-\begin{column}{0.33\textwidth}
-\textbf{Fr\'{e}chet}\\[0.5em]
-Worst-case pointwise deviation
-(``dog-walking distance'').
-At $n=4$, behaves very similarly to MSE.
-\end{column}
-\begin{column}{0.33\textwidth}
-\textbf{MSE}\\[0.5em]
-Average squared error.
-After normalization, approximately
-inversely related to Pearson:\\
-$\text{MSE} \approx 2\sigma^2(1-r)$.
+\begin{column}{0.52\textwidth}
+\small
+\textbf{2 genes} achieve 5/6 votes:\\[0.3em]
+NACA, AC008875.3\\[0.5em]
+4 additional genes at 4/6:\\
+CCDC57, RTRAF, MDFIC, CTDSPL2\\[0.5em]
+Spike-at-$t=3$ pattern --- distance/correlation
+methods converge, but no unanimous calls.
 \end{column}
 \end{columns}
-
-\vspace{1em}
-\textbf{Key insight:} Fr\'{e}chet and MSE are near-redundant (19--20/20 overlap).
-Both confirm Pearson's findings from a distance perspective.
 \end{frame}
 
 % ------------------------------------------------------------------
-\begin{frame}{sMAPE --- Failure Mode at Zero Values}
-$$\text{sMAPE} = \frac{1}{n}\sum \frac{2|p_i - g_i|}{|p_i| + |g_i|}$$
-
-\begin{itemize}
-  \item Measures \textbf{relative} (percentage) error per timepoint
-  \item When $p_i = 0$: $\text{sMAPE}_i = 2|g_i|/|g_i| = 2.0$ regardless of $g_i$
-  \item clusterThree has a zero at $t=3$ $\Rightarrow$ sMAPE cannot discriminate
-        at the most informative timepoint
-  \item Result: \textbf{0/20 overlap} with every other method on clusterThree
-\end{itemize}
+\begin{frame}{Results: clusterOne LT --- Pearson/Fr\'{e}chet/MSE Core}
+\begin{columns}[T]
+\begin{column}{0.45\textwidth}
+\includegraphics[width=\textwidth]{plots/overlap_6methods_LT_clusterOneLT.png}
+\end{column}
+\begin{column}{0.52\textwidth}
+\small
+Pearson--Fr\'{e}chet--MSE: 17--18/20 overlap\\
+DTW joins at 13--14/20\\
+Cosine isolated: 0/20\\
+sMAPE isolated: 1--4/20\\[0.5em]
+Cosine fails even on log-transformed\\
+data --- magnitude bias persists.\\[0.5em]
+sMAPE penalizes relative error\\
+on near-zero values.
+\end{column}
+\end{columns}
 \end{frame}
 
 % ------------------------------------------------------------------
+\begin{frame}{Ensemble Rankings --- clusterOne (LT)}
+\small
+\begin{center}
+\begin{tabular}{clcl}
+\toprule
+\textbf{Rank} & \textbf{Gene} & \textbf{Votes} & \textbf{Methods} \\
+\midrule
+1 & NACA       & \textbf{5/6} & Pearson, DTW, Fr\'{e}chet, MSE, sMAPE \\
+2 & AC008875.3 & \textbf{5/6} & Pearson, DTW, Fr\'{e}chet, MSE, sMAPE \\
+3 & CCDC57     & 4/6 & Pearson, DTW, Fr\'{e}chet, MSE \\
+4 & RTRAF      & 4/6 & Pearson, DTW, Fr\'{e}chet, MSE \\
+5 & MDFIC      & 4/6 & Pearson, DTW, Fr\'{e}chet, MSE \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\vspace{0.5em}
+NACA and AC008875.3 are the highest-confidence candidates for the
+clusterOne LT spike pattern --- consistent across 5 of 6 methods.
+\end{frame}
+
+% ==================================================================
+% RESULTS — clusterTwo LT
+% ==================================================================
 \begin{frame}{Results: clusterTwo LT --- Best Agreement}
 \begin{columns}[T]
 \begin{column}{0.45\textwidth}
@@ -177,121 +170,170 @@ to match --- all methods converge.\\[0.5em]
 \end{frame}
 
 % ------------------------------------------------------------------
-\begin{frame}{Results: clusterThree --- Strong Consensus (Except sMAPE)}
+\begin{frame}{Results: clusterTwo LT --- All Methods Converge}
 \begin{columns}[T]
 \begin{column}{0.45\textwidth}
-\includegraphics[width=\textwidth]{plots/overlap_6methods_clusterThree.png}
+\includegraphics[width=\textwidth]{plots/overlap_6methods_LT_clusterTwoLT.png}
 \end{column}
 \begin{column}{0.52\textwidth}
 \small
-Pearson, DTW, Cosine, Fr\'{e}chet, MSE\\
-all agree: 17--20/20 overlap.\\[0.5em]
-sMAPE: 0/20 overlap with everything\\
-(zero-value failure at $t=3$).\\[0.5em]
-Consensus genes: TEDC1, PGAP1, TANGO6\\[0.5em]
-\textbf{Validates that 5 of 6 methods\\capture the same biology.}
+\textbf{Most balanced cluster overall.}\\[0.3em]
+Pearson--MSE: 18/20\\
+Pearson--Cosine: 18/20\\
+Fr\'{e}chet--MSE: 18/20\\[0.5em]
+Even sMAPE agrees: 12--15/20\\
+across all methods --- no zero-value failure here.\\[0.5em]
+Steady-increase pattern is robust\\
+across all 6 metrics.
 \end{column}
 \end{columns}
 \end{frame}
 
 % ------------------------------------------------------------------
-\begin{frame}{Results: clusterOne --- Pearson/MSE/Fr\'{e}chet Core}
-\begin{columns}[T]
-\begin{column}{0.45\textwidth}
-\includegraphics[width=\textwidth]{plots/overlap_6methods_clusterOne.png}
-\end{column}
-\begin{column}{0.52\textwidth}
-\small
-Pearson--MSE--Fr\'{e}chet: 18/20 overlap\\
-DTW joins at 15--17/20\\
-Cosine isolated: 0--2/20\\[0.5em]
-Top ensemble genes (5/6 votes):\\
-SSR3, REXO2, YIF1A, MAZ,\\
-ACBD3, GSPT2\\[0.5em]
-Cosine finds magnitude, not shape.
-\end{column}
-\end{columns}
-\end{frame}
-
-% ------------------------------------------------------------------
-\begin{frame}{Results: clusterFour --- The Hard Case}
-\begin{columns}[T]
-\begin{column}{0.45\textwidth}
-\includegraphics[width=\textwidth]{plots/overlap_6methods_clusterFour.png}
-\end{column}
-\begin{column}{0.52\textwidth}
-\small
-70$\times$ spike $\Rightarrow$ effectively a delta function.\\[0.3em]
-Cosine/Fr\'{e}chet/MSE agree (19--20/20):\\
-all dominated by $t=3$ magnitude.\\[0.3em]
-Pearson isolated (scale-invariant,\\
-finds \textit{relative} peaks).\\[0.3em]
-DTW, sMAPE also isolated.\\[0.5em]
-\textbf{No genuine shape consensus.}\\
-Needs denser time sampling to resolve.
-\end{column}
-\end{columns}
-\end{frame}
-
-% ------------------------------------------------------------------
-\begin{frame}{Pearson vs Cosine --- Visual Comparison (clusterOne LT)}
-\begin{columns}[T]
-\begin{column}{0.48\textwidth}
-\centering
-\includegraphics[width=\textwidth]{plots/Pearson_LT_clusterOneLT_constraint.png}\\
-\small Pearson: shape-matching genes
-\end{column}
-\begin{column}{0.48\textwidth}
-\centering
-\includegraphics[width=\textwidth]{plots/Cosine_LT_clusterOneLT_constraint.png}\\
-\small Cosine: magnitude-biased genes
-\end{column}
-\end{columns}
-\end{frame}
-
-% ------------------------------------------------------------------
-\begin{frame}{Ensemble Rankings --- clusterTwo (Raw)}
+\begin{frame}{Ensemble Rankings --- clusterTwo (LT)}
 \small
 \begin{center}
 \begin{tabular}{clcl}
 \toprule
 \textbf{Rank} & \textbf{Gene} & \textbf{Votes} & \textbf{Methods} \\
 \midrule
-1 & FAM49B  & \textbf{6/6} & All methods \\
-2 & RNF213  & \textbf{6/6} & All methods \\
-3 & ARGLU1  & 4/6 & Pearson, DTW, Fr\'{e}chet, MSE \\
-4 & TMC8    & 5/6 & Pearson, Cosine, Fr\'{e}chet, MSE, sMAPE \\
-5 & SNRNP70 & 5/6 & Pearson, Cosine, Fr\'{e}chet, MSE, sMAPE \\
+1 & RAB14    & \textbf{6/6} & All methods \\
+2 & SYNGR1   & \textbf{6/6} & All methods \\
+3 & ARHGAP25 & \textbf{6/6} & All methods \\
+4 & HNRNPH3  & \textbf{6/6} & All methods \\
+5 & BSG      & \textbf{6/6} & All methods \\
 \bottomrule
 \end{tabular}
 \end{center}
 
 \vspace{0.5em}
-FAM49B and RNF213 are unanimous across all 6 methods --- highest confidence
-candidates for TCR pathway involvement.
+9 of the top 11 genes are unanimous 6/6 across all methods ---
+highest-confidence candidates for TCR pathway involvement.
+\end{frame}
+
+% ==================================================================
+% RESULTS — clusterThree LT
+% ==================================================================
+\begin{frame}{Results: clusterThree LT --- 5 of 6 Methods Agree}
+\begin{columns}[T]
+\begin{column}{0.45\textwidth}
+\includegraphics[width=\textwidth]{plots/Ensemble_LT_clusterThreeLT_constraint.png}
+\end{column}
+\begin{column}{0.52\textwidth}
+\small
+\textbf{3 genes} achieve 5/6 votes:\\[0.3em]
+TEDC1, CTBP1-AS, PGAP1\\[0.5em]
+Pearson, DTW, Cosine, Fr\'{e}chet, MSE\\
+all converge on the near-flat dip pattern.\\[0.5em]
+sMAPE blocked by zero at $t=3$:\\
+$\frac{2|0 - g_i|}{|0| + |g_i|} = 2$ regardless of $g_i$.
+\end{column}
+\end{columns}
 \end{frame}
 
 % ------------------------------------------------------------------
-\begin{frame}{Recommendations}
-\begin{enumerate}
-  \item \textbf{Primary metric:} Pearson --- directly captures shape, invariant
-        to scale and baseline
-  \item \textbf{Secondary validation:} MSE --- independent distance-based
-        confirmation (Fr\'{e}chet is near-redundant with MSE)
-  \item \textbf{Skip for this data:} Cosine (inconsistent), sMAPE (zero-point failure)
-  \item \textbf{DTW:} marginal benefit at 4 timepoints; valuable with denser sampling
-  \item \textbf{Ensemble:} 3-method consensus (Pearson + DTW + MSE), $\geq$2/3 agreement
-        for high-confidence gene lists
-  \item \textbf{clusterFour:} needs more timepoints or peak-detection approach
-\end{enumerate}
+\begin{frame}{Results: clusterThree LT --- Strong Consensus (Except sMAPE)}
+\begin{columns}[T]
+\begin{column}{0.45\textwidth}
+\includegraphics[width=\textwidth]{plots/overlap_6methods_LT_clusterThreeLT.png}
+\end{column}
+\begin{column}{0.52\textwidth}
+\small
+Pearson--Cosine: \textbf{20/20} (perfect)\\
+Fr\'{e}chet--MSE: \textbf{20/20} (perfect)\\
+Cross-pairs: 16--18/20\\[0.5em]
+sMAPE: \textbf{0/20} with everything\\
+(zero-value failure at $t=3$).\\[0.5em]
+\textbf{Validates that 5 of 6 methods\\capture the same biology.}
+\end{column}
+\end{columns}
 \end{frame}
 
 % ------------------------------------------------------------------
-\begin{frame}{}
-\vfill
-\centering
-\textbf{\Huge Thank you}
-\vfill
+\begin{frame}{Ensemble Rankings --- clusterThree (LT)}
+\small
+\begin{center}
+\begin{tabular}{clcl}
+\toprule
+\textbf{Rank} & \textbf{Gene} & \textbf{Votes} & \textbf{Methods} \\
+\midrule
+1 & TEDC1    & \textbf{5/6} & Pearson, DTW, Cosine, Fr\'{e}chet, MSE \\
+2 & CTBP1-AS & \textbf{5/6} & Pearson, DTW, Cosine, Fr\'{e}chet, MSE \\
+3 & PGAP1    & \textbf{5/6} & Pearson, DTW, Cosine, Fr\'{e}chet, MSE \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\vspace{0.5em}
+TEDC1, CTBP1-AS, and PGAP1 are the high-confidence consensus
+genes for clusterThree LT (sMAPE excluded due to the zero-at-$t{=}3$ failure).
+\end{frame}
+
+% ==================================================================
+% RESULTS — clusterFour LT
+% ==================================================================
+\begin{frame}{Results: clusterFour LT --- The Hard Case}
+\begin{columns}[T]
+\begin{column}{0.45\textwidth}
+\includegraphics[width=\textwidth]{plots/Ensemble_LT_clusterFourLT_constraint.png}
+\end{column}
+\begin{column}{0.52\textwidth}
+\small
+70$\times$ spike at $t=3$ $\Rightarrow$ effectively\\
+a delta function.\\[0.5em]
+\textbf{Zero genes} achieve $\geq$2/6 votes\\
+in the ensemble top-20.\\[0.5em]
+Methods split into 3 disjoint groups:
+\begin{itemize}\itemsep0pt
+\item Cosine/Fr\'{e}chet/MSE (magnitude)
+\item Pearson (relative shape)
+\item DTW, sMAPE (each isolated)
+\end{itemize}
+\end{column}
+\end{columns}
+\end{frame}
+
+% ------------------------------------------------------------------
+\begin{frame}{Results: clusterFour LT --- No Shape Consensus}
+\begin{columns}[T]
+\begin{column}{0.45\textwidth}
+\includegraphics[width=\textwidth]{plots/overlap_6methods_LT_clusterFourLT.png}
+\end{column}
+\begin{column}{0.52\textwidth}
+\small
+Cosine--Fr\'{e}chet--MSE: 18--20/20\\
+(all dominated by $t=3$ magnitude)\\[0.3em]
+Pearson: 0/20 with everything\\
+(scale-invariant, finds \textit{relative} peaks)\\[0.3em]
+DTW: 0/20 with everything\\
+sMAPE: 0/20 with everything\\[0.5em]
+\textbf{Needs denser time sampling}\\
+to resolve shape vs magnitude.
+\end{column}
+\end{columns}
+\end{frame}
+
+% ------------------------------------------------------------------
+\begin{frame}{Ensemble Rankings --- clusterFour (LT)}
+\small
+\begin{center}
+\begin{tabular}{clcl}
+\toprule
+\textbf{Rank} & \textbf{Gene} & \textbf{Votes} & \textbf{Methods} \\
+\midrule
+1 & AC068888.2 & 0/6 & --- \\
+2 & AC018638.6 & 0/6 & --- \\
+3 & SLC16A5    & 0/6 & --- \\
+4 & TPH1       & 0/6 & --- \\
+5 & CNN3       & 0/6 & --- \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\vspace{0.5em}
+\textbf{No consensus.} Top genes by average rank do not appear in
+\textit{any} single method's top-20 --- the 70$\times$ spike defeats the
+voting ensemble. clusterFour requires denser temporal sampling.
 \end{frame}
 
 % ==================================================================
