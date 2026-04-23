@@ -6,6 +6,12 @@ similarity metrics. This is for Dr. Nancy Guo's research group at Binghamton.
 The goal is to evaluate whether Pearson correlation, DTW, and cosine similarity
 capture biologically meaningful patterns better than (or complementary to) NMF.
 
+## Project Structure
+Work is organized into weekly folders:
+- `Week of April 9th/` — Phases 1-7 (analysis.py, notebooks, metrics_results.pkl, plots/, presentation)
+- `Week of April 16th/` — Method gating exploration + raw MAE analysis + presentation
+- `analysis data/` — shared data (stays at root)
+
 ## Data Structure
 - 4 clusters of ~17,857 genes across 4 timepoints (0, 3, 6, 9)
 - `analysis data/gene_counts/` — raw expression counts per cluster (4 CSV files)
@@ -13,10 +19,34 @@ capture biologically meaningful patterns better than (or complementary to) NMF.
 - `analysis data/NMF run results/clusters/` — NMF output (patterns + per-gene coefficients)
 - `analysis data/NMF run results/clustersLT/` — NMF output for log-transformed data
 - `analysis data/gene_list.csv` — full gene list (~17,857 genes)
-- `analysis.py` — Ethan's existing analysis code
 
 CSV format: rows are genes (gene name as index), columns are 4 timepoints.
 NMF results: header lines starting with `#` contain pattern vectors, `row-N` lines contain per-gene coefficients.
+
+## Current Status (as of 2026-04-16)
+Phases 1-7 complete. Key finding from this week: all 6 similarity methods
+operate on normalized data which erases magnitude information. This means
+they find genes with the right temporal shape but at the wrong expression
+level. Raw-space MAE (on unnormalized LT data) gives the best visual fits
+for clusters Two, Three, and Four. ClusterOne is the exception where genes
+at the pattern's magnitude don't follow the spike shape.
+
+**Waiting on:** Professor's feedback on whether we care about matching
+expression level (raw MAE) or just temporal shape (normalized methods with gating).
+
+## 6 Similarity Methods (all operate on normalized data)
+1. Pearson correlation — shape match, scale/shift invariant
+2. DTW — temporal alignment with warping
+3. Cosine similarity — vector angle, no mean-centering
+4. Fréchet distance — max curve deviation
+5. MSE — average squared error
+6. sMAPE — symmetric percentage error
+
+## 7th Method: Raw-Space MAE (new, Week of April 16th)
+- MAE computed on unnormalized LT expression values
+- No normalization step — measures actual distance on the plot
+- Best visual fit for clusters Two, Three, Four
+- ClusterOne: genes at right magnitude don't follow spike shape
 
 ## Required Modifications (in order)
 
