@@ -136,85 +136,28 @@ Direction of change, or absolute expression level?
 % ==================================================================
 \appendix
 
-\begin{frame}
-\vfill
-\begin{center}
-\Huge\textcolor{binggreen}{\textbf{Appendix}}\\[0.8em]
-\large Raw-space methods --- no normalization
-\end{center}
-\vfill
-\end{frame}
-
-% ------------------------------------------------------------------
-\begin{frame}{Appendix --- Why Bother?}
-\footnotesize
-Only \textbf{Pearson} and \textbf{Cosine} are scale-invariant by definition. DTW, Fr\'echet, MSE, and sMAPE are genuine distance metrics --- they only \textit{behaved} as shape-based in the April 9 pipeline because every gene was normalized to $(0,1]$ before they saw it.\\[0.5em]
-This appendix recomputes those four methods on \textbf{raw LT data} (no normalization) to see what their natural picks look like. Raw MAE is included for reference.
-\normalsize
-\vspace{1em}
-\begin{center}
-\begin{tabular}{lcccc}
-\toprule
-\textbf{Cluster} & \textbf{DTW} & \textbf{Fr\'echet} & \textbf{MSE} & \textbf{sMAPE} \\
-\midrule
-clusterOne   & 17/20 &  9/20 & 14/20 & 17/20 \\
-clusterTwo   & 20/20 & 17/20 & 18/20 &  6/20 \\
-clusterThree & 20/20 & 13/20 & 16/20 & 17/20 \\
-clusterFour  &  7/20 &  4/20 & 17/20 &  0/20 \\
-\bottomrule
-\end{tabular}\\[0.4em]
-\footnotesize Top-20 overlap with raw MAE (both computed on unnormalized LT data).
-\end{center}
-\end{frame}
-
-% ------------------------------------------------------------------
 \begin{frame}{Appendix --- clusterOne (raw space)}
-\footnotesize
-All four methods find genes close to the pattern. DTW and sMAPE match MAE's picks most tightly (17/20). Fr\'echet's max-deviation focus picks outliers (9/20).
-\normalsize
 \begin{center}
-\includegraphics[width=\textwidth,height=0.78\textheight,keepaspectratio]{plots/raw_composite_clusterOne.png}
+\includegraphics[width=\textwidth,height=0.85\textheight,keepaspectratio]{plots/raw_composite_clusterOne.png}
 \end{center}
 \end{frame}
 
-% ------------------------------------------------------------------
 \begin{frame}{Appendix --- clusterTwo (raw space)}
-\footnotesize
-DTW is essentially identical to MAE here (20/20). sMAPE is the outlier (6/20) --- even on raw data it's structurally relative (divides by $|g|+|p|$), so it ranks genes differently.
-\normalsize
 \begin{center}
-\includegraphics[width=\textwidth,height=0.78\textheight,keepaspectratio]{plots/raw_composite_clusterTwo.png}
+\includegraphics[width=\textwidth,height=0.85\textheight,keepaspectratio]{plots/raw_composite_clusterTwo.png}
 \end{center}
 \end{frame}
 
-% ------------------------------------------------------------------
 \begin{frame}{Appendix --- clusterThree (raw space)}
-\footnotesize
-Without normalization, DTW/Fr\'echet/MSE/sMAPE all converge on the low-magnitude genes that sit on the pattern. DTW is identical to MAE (20/20). Confirms that magnitude-awareness, not any one metric's machinery, is what drives the correct picks here.
-\normalsize
 \begin{center}
-\includegraphics[width=\textwidth,height=0.78\textheight,keepaspectratio]{plots/raw_composite_clusterThree.png}
+\includegraphics[width=\textwidth,height=0.85\textheight,keepaspectratio]{plots/raw_composite_clusterThree.png}
 \end{center}
 \end{frame}
 
-% ------------------------------------------------------------------
 \begin{frame}{Appendix --- clusterFour (raw space)}
-\footnotesize
-sMAPE breaks down completely (0/20 overlap with MAE). Pattern values near zero at $t=6,9$ make sMAPE's denominator tiny, blowing up its sensitivity. Fr\'echet (4/20) also struggles on the spike. DTW and MSE behave reasonably.
-\normalsize
 \begin{center}
-\includegraphics[width=\textwidth,height=0.78\textheight,keepaspectratio]{plots/raw_composite_clusterFour.png}
+\includegraphics[width=\textwidth,height=0.85\textheight,keepaspectratio]{plots/raw_composite_clusterFour.png}
 \end{center}
-\end{frame}
-
-% ------------------------------------------------------------------
-\begin{frame}{Appendix --- Takeaway}
-\begin{itemize}\itemsep8pt
-  \item \textbf{DTW and MSE on raw $\approx$ raw MAE.} On 4 timepoints, their extra machinery (temporal warping, squared penalty) doesn't distinguish them meaningfully from pointwise MAE.
-  \item \textbf{Fr\'echet is noisier.} Max-deviation focus punishes one bad timepoint, so it picks different outliers.
-  \item \textbf{sMAPE stands apart.} Percentage-style denominator breaks down when pattern values are near zero --- erratic across clusters.
-  \item \textbf{Practical point:} if magnitude-awareness is what matters, \textbf{raw MAE} is the cleanest and most interpretable form of this family.
-\end{itemize}
 \end{frame}
 
 \end{document}
